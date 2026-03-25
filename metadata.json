@@ -1,0 +1,5 @@
+{
+  "name": "Zarrar Enterprise",
+  "description": "Premium UK Courier & Freight Services. Fast, reliable, and tailored logistics solutions across the United Kingdom.",
+  "requestFramePermissions": ["geolocation"]
+}
