@@ -28,6 +28,7 @@ const getCoords = async (postcode) => {
 };
 
 export const getDistanceInMiles = async (originPostcode, destinationPostcode) => {
+  console.log("ORS API KEY:", process.env.ORS_API_KEY);
   try {
     const apiKey = process.env.ORS_API_KEY;
 
