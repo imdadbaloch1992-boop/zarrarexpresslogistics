@@ -1,62 +1,59 @@
 import axios from "axios";
 
+// 🔹 Helper: Convert postcode → coordinates using Nominatim (FREE)
+const getCoords = async (postcode) => {
+  const res = await axios.get(
+    "https://nominatim.openstreetmap.org/search",
+    {
+      params: {
+        q: postcode,
+        format: "json",
+        limit: 1,
+      },
+      headers: {
+        "User-Agent": "zarrar-enterprise-app", // required by Nominatim
+      },
+    }
+  );
+
+  if (!res.data || res.data.length === 0) {
+    throw new Error(`Invalid postcode: ${postcode}`);
+  }
+
+  // Return [lng, lat] (IMPORTANT ORDER)
+  return [
+    parseFloat(res.data[0].lon),
+    parseFloat(res.data[0].lat),
+  ];
+};
+
 export const getDistanceInMiles = async (originPostcode, destinationPostcode) => {
   try {
     const apiKey = process.env.ORS_API_KEY;
 
     if (!apiKey) {
-      throw new Error("ORS API Key missing in .env file");
+      throw new Error("ORS API Key missing in environment variables");
     }
 
-    // 1️⃣ Convert origin postcode → coordinates
-    const originGeo = await axios.get(
-      "https://api.openrouteservice.org/geocode/search",
-      {
-        params: {
-          api_key: apiKey,
-          text: originPostcode
-        }
-      }
-    );
+    // ✅ 1️⃣ Get coordinates using Nominatim (NO BLOCKING ISSUE)
+    const originCoords = await getCoords(originPostcode);
+    const destinationCoords = await getCoords(destinationPostcode);
 
-    const destinationGeo = await axios.get(
-      "https://api.openrouteservice.org/geocode/search",
-      {
-        params: {
-          api_key: apiKey,
-          text: destinationPostcode
-        }
-      }
-    );
-
-    // ✅ Check if features exist
-    if (
-      !originGeo.data.features ||
-      originGeo.data.features.length === 0 ||
-      !destinationGeo.data.features ||
-      destinationGeo.data.features.length === 0
-    ) {
-      throw new Error("Could not find coordinates for provided postcodes");
-    }
-
-    const originCoords = originGeo.data.features[0].geometry.coordinates;
-    const destinationCoords = destinationGeo.data.features[0].geometry.coordinates;
-
-    // 2️⃣ Get driving distance
+    // ✅ 2️⃣ Get driving distance from ORS
     const routeResponse = await axios.post(
       "https://api.openrouteservice.org/v2/directions/driving-car",
       {
-        coordinates: [originCoords, destinationCoords]
+        coordinates: [originCoords, destinationCoords],
       },
       {
         headers: {
           Authorization: apiKey,
-          "Content-Type": "application/json"
-        }
+          "Content-Type": "application/json",
+        },
       }
     );
 
-    // ✅ Validate route response
+    // ✅ Validate response
     if (
       !routeResponse.data.routes ||
       routeResponse.data.routes.length === 0 ||
@@ -73,8 +70,11 @@ export const getDistanceInMiles = async (originPostcode, destinationPostcode) =>
     return Number(miles.toFixed(2));
 
   } catch (error) {
-    console.error("Distance Error:", error.response?.data || error.message);
-    // Always throw so controller can catch and stop booking
+    console.error(
+      "Distance Error:",
+      error.response?.data || error.message
+    );
+
     throw new Error("Failed to calculate distance");
   }
 };
