@@ -29,6 +29,7 @@ const BookingDetails: React.FC = () => {
     const fetchBooking = async () => {
       try {
         const bookingId = localStorage.getItem("latestBookingId");
+        console.log("Booking ID:", bookingId);
 
         if (!bookingId) {
           setLoading(false);
@@ -36,7 +37,7 @@ const BookingDetails: React.FC = () => {
         }
 
         const res = await axios.get(
-          `http://localhost:5000/api/bookings/booking/${bookingId}`
+          `http://localhost:5000/api/bookings/${bookingId}`
         );
 
         if (res.data.success) {
