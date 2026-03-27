@@ -36,8 +36,7 @@ const BookingDetails: React.FC = () => {
           return;
         }
 
-        const res = await axios.get(
-          `http://localhost:5000/api/bookings/${bookingId}`
+        const res = await axios.get(`/api/bookings/${bookingId}`
         );
 
         if (res.data.success) {
