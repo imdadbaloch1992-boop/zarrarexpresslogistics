@@ -14,7 +14,7 @@ import Industries from './pages/Industries';
 import Fleet from './pages/Fleet';
 import QuoteForm from './pages/QuoteForm';
 import QuoteConfirm from './pages/QuoteConfirm';
-import BookingDetails from './pages/BookingDetails'; // ADDED THIS IMPORT
+import BookingDetails from './pages/QuoteConfirm'; // ADDED THIS IMPORT
 import PaymentPage from './pages/PaymentPage';
 import LondonServices from './location/LondonServices';
 import ManchesterServices from './location/ManchesterServices';
