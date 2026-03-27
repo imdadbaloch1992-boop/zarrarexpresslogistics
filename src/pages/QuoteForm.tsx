@@ -1,7 +1,5 @@
 import { useLocation } from "react-router-dom";
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
-
 import { motion } from "framer-motion";
 import {
   TextField,
@@ -12,7 +10,6 @@ import {
   Checkbox,
   FormControlLabel,
   Button,
-  
   Typography,
   Paper,
   Box,
@@ -21,10 +18,9 @@ import {
 import { FaTruck, FaMapMarkerAlt, FaPhone } from "react-icons/fa";
 
 // Import QuoteConfirm component
-import QuoteConfirm from "./QuoteConfirm"; // make sure path is correct
+import QuoteConfirm from "./QuoteConfirm"; 
 
 const QuoteForm = () => {
-
   const location = useLocation();
   const selectedVehicle = location.state?.selectedVehicle || "";
   const pricePerMile = location.state?.pricePerMile || "0";
@@ -56,9 +52,9 @@ const QuoteForm = () => {
   const greenCool = "#16a34a";
   const blueHover = "#60a5fa";
 
-  // --- NEW STATES ---
-  const [bookingCreated, setBookingCreated] = useState(null); // store booking response
-  const [showQuote, setShowQuote] = useState(false); // toggle QuoteConfirm
+  // --- STATES ---
+  const [bookingCreated, setBookingCreated] = useState(null); 
+  const [showQuote, setShowQuote] = useState(false); 
 
   const [formData, setFormData] = useState({
     collectionPostcode: "",
@@ -96,11 +92,8 @@ const QuoteForm = () => {
     }
 
     let updatedExtras = [...formData.extra];
-
     if (checked) {
-      if (!updatedExtras.includes(value)) {
-        updatedExtras.push(value);
-      }
+      if (!updatedExtras.includes(value)) updatedExtras.push(value);
     } else {
       updatedExtras = updatedExtras.filter((item) => item !== value);
     }
@@ -109,51 +102,48 @@ const QuoteForm = () => {
   };
 
   const handleSubmit = async (e) => {
-  e.preventDefault();
+    e.preventDefault();
 
-  const backendPayload = {
-    collectionPostcode: formData.collectionPostcode,
-    deliveryPostcode: formData.deliveryPostcode,
-    phone: formData.phone,
-    vehicle: formData.vehicle,
-    pricePerMile: formData.pricePerMile,
-    minCharge: formData.minCharge,
-    extraServices: formData.extra,
-    sendEmail: formData.sendEmail,
-    email: formData.sendEmail ? formData.email : null
-  };
+    const backendPayload = {
+      collectionPostcode: formData.collectionPostcode,
+      deliveryPostcode: formData.deliveryPostcode,
+      phone: formData.phone,
+      vehicle: formData.vehicle,
+      pricePerMile: formData.pricePerMile,
+      minCharge: formData.minCharge,
+      extraServices: formData.extra,
+      sendEmail: formData.sendEmail,
+      email: formData.sendEmail ? formData.email : null
+    };
 
-  try {
-    const response = await fetch("/api/bookings/create", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(backendPayload)
-    });
+    try {
+      const response = await fetch("/api/bookings/create", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(backendPayload)
+      });
 
-    const data = await response.json();
+      const data = await response.json();
 
-    if (!response.ok) throw new Error(data.message || "Something went wrong");
+      if (!response.ok) throw new Error(data.message || "Something went wrong");
 
-    alert("Quote Calculated Successfully!");
-    console.log("Server Response:", data);
+      alert("Quote Calculated Successfully!");
+      
+      // CRITICAL FIX: Save data.data to state and handle localStorage
+      if (data?.success && data?.data) {
+        setBookingCreated(data.data);
+        
+        if (data.data.bookingId) {
+          localStorage.setItem("latestBookingId", data.data.bookingId);
+          console.log("Booking ID stored:", data.data.bookingId);
+        }
+      }
 
-    // --- SAVE BOOKING RESPONSE ---
-    setBookingCreated(data);
-
-    // --- SAVE BOOKING ID TO LOCALSTORAGE ---
-    // Assuming backend response structure: data.data.bookingId
-    if (data?.data?.bookingId) {
-      localStorage.setItem("latestBookingId", data.data.bookingId);
-      console.log("Booking ID saved to localStorage:", data.data.bookingId);
-    } else {
-      console.warn("Booking ID not found in response");
+    } catch (error) {
+      console.error("Error:", error.message);
+      alert(error.message);
     }
-
-  } catch (error) {
-    console.error("Error:", error.message);
-    alert(error.message);
-  }
-};
+  };
 
   const inputStyle = {
     "& .MuiOutlinedInput-root": {
@@ -192,77 +182,50 @@ const QuoteForm = () => {
             variant="h5"
             align="center"
             fontWeight={600}
-          sx={{ mb: 4, color: "#2e7d32" }}
+            sx={{ mb: 4, color: "#2e7d32" }}
           >
             Get Instant Quote
           </Typography>
 
           <form onSubmit={handleSubmit}>
-
-            {/* Route Details */}
-            <Typography fontWeight={500} sx={{ mb: 2 }}>
-              Route Details
-            </Typography>
+            <Typography fontWeight={500} sx={{ mb: 2 }}>Route Details</Typography>
             <Divider sx={{ mb: 3 }} />
 
-            <Box
-              sx={{
-                display: "flex",
-                flexDirection: { xs: "column", md: "row" },
-                gap: 3,
-                mb: 5
-              }}
-            >
+            <Box sx={{ display: "flex", flexDirection: { xs: "column", md: "row" }, gap: 3, mb: 5 }}>
               <TextField
                 fullWidth
                 required
                 label="Collection Postcode"
                 name="collectionPostcode"
                 onChange={handleChange}
-                InputProps={{
-                  startAdornment: (
-                    <FaMapMarkerAlt className="mr-2 text-gray-400" />
-                  )
-                }}
+                InputProps={{ startAdornment: <FaMapMarkerAlt className="mr-2 text-gray-400" /> }}
                 sx={inputStyle}
               />
-
               <TextField
                 fullWidth
                 required
                 label="Delivery Postcode"
                 name="deliveryPostcode"
                 onChange={handleChange}
-                InputProps={{
-                  startAdornment: (
-                    <FaMapMarkerAlt className="mr-2 text-gray-400" />
-                  )
-                }}
+                InputProps={{ startAdornment: <FaMapMarkerAlt className="mr-2 text-gray-400" /> }}
                 sx={inputStyle}
               />
             </Box>
 
             <Box sx={{ mb: 4 }}>
-  <TextField
-    fullWidth
-    required
-    label="Mobile Phone"
-    name="phone"
-    placeholder="+44 7123 456789"
-    onChange={handleChange}
-    InputProps={{
-      startAdornment: (
-        <FaPhone className="mr-2 text-gray-400" />
-      )
-    }}
-    sx={inputStyle}
-  />
-</Box>
+              <TextField
+                fullWidth
+                required
+                label="Mobile Phone"
+                name="phone"
+                placeholder="+44 7123 456789"
+                onChange={handleChange}
+                InputProps={{ startAdornment: <FaPhone className="mr-2 text-gray-400" /> }}
+                sx={inputStyle}
+              />
+            </Box>
 
-            {/* Vehicle Type */}
-            <Typography fontWeight={500} sx={{ mb: 2 }}>
-              Vehicle Type
-            </Typography>
+            <Typography fontWeight={500} sx={{ mb: 2 }}>Vehicle Type</Typography>
             <Divider sx={{ mb: 3 }} />
 
             <Box sx={{ mb: 5 }}>
@@ -275,9 +238,7 @@ const QuoteForm = () => {
                   label="Select Vehicle"
                 >
                   {vehiclesList.map((vehicle) => (
-                    <MenuItem key={vehicle} value={vehicle}>
-                      {vehicle}
-                    </MenuItem>
+                    <MenuItem key={vehicle} value={vehicle}>{vehicle}</MenuItem>
                   ))}
                 </Select>
               </FormControl>
@@ -289,23 +250,14 @@ const QuoteForm = () => {
               </Typography>
             </Box>
 
-            {/* Additional Services */}
-            <Typography fontWeight={500} sx={{ mb: 2 }}>
-              Additional Services
-            </Typography>
+            <Typography fontWeight={500} sx={{ mb: 2 }}>Additional Services</Typography>
             <Divider sx={{ mb: 3 }} />
 
             <Box sx={{ display: "flex", flexDirection: "column", gap: 1.5, mb: 3 }}>
               {["Out Of Hours", "Congestion Charge", "ULEZ Charge"].map((item, index) => (
                 <FormControlLabel
                   key={item}
-                  control={
-                    <Checkbox
-                      value={item}
-                      onChange={handleCheckbox}
-                      sx={{ "&.Mui-checked": { color: greenMain } }}
-                    />
-                  }
+                  control={<Checkbox value={item} onChange={handleCheckbox} sx={{ "&.Mui-checked": { color: greenMain } }} />}
                   label={
                     <Box>
                       <Typography sx={{ fontSize: "0.9rem" }}>{item}</Typography>
@@ -321,17 +273,8 @@ const QuoteForm = () => {
             </Box>
 
             <FormControlLabel
-              control={
-                <Checkbox
-                  name="sendEmail"
-                  checked={formData.sendEmail}
-                  onChange={handleCheckbox}
-                  sx={{ "&.Mui-checked": { color: greenMain } }}
-                />
-              }
-              label={
-                <Typography sx={{ fontSize: "0.9rem" }}>Receive quote by email</Typography>
-              }
+              control={<Checkbox name="sendEmail" checked={formData.sendEmail} onChange={handleCheckbox} sx={{ "&.Mui-checked": { color: greenMain } }} />}
+              label={<Typography sx={{ fontSize: "0.9rem" }}>Receive quote by email</Typography>}
             />
 
             {formData.sendEmail && (
@@ -353,35 +296,22 @@ const QuoteForm = () => {
               type="submit"
               startIcon={<FaTruck />}
               sx={{
-                mt: 2,
-                py: 1.6,
-                borderRadius: 2,
-                fontWeight: 500,
-                textTransform: "none",
-                fontSize: "0.95rem",
-                backgroundColor: greenMain,
-                boxShadow: "none",
-                "&:hover": { backgroundColor: blueHover }
+                mt: 2, py: 1.6, borderRadius: 2, fontWeight: 500, textTransform: "none", fontSize: "0.95rem",
+                backgroundColor: greenMain, boxShadow: "none", "&:hover": { backgroundColor: blueHover }
               }}
             >
               Get Quote
             </Button>
           </form>
 
-          {/* --- SHOW ESTIMATE QUOTE BUTTON --- */}
           {bookingCreated && (
             <Button
               fullWidth
               variant="outlined"
               onClick={() => setShowQuote(true)}
               sx={{
-                mt: 4,
-                py: 1.5,
-                borderColor: greenMain,
-                color: greenMain,
-                fontWeight: 500,
-                textTransform: "none",
-                "&:hover": { backgroundColor: "#dcfce7" }
+                mt: 4, py: 1.5, borderColor: greenMain, color: greenMain, fontWeight: 500,
+                textTransform: "none", "&:hover": { backgroundColor: "#dcfce7" }
               }}
             >
               Estimate Quote

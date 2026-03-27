@@ -4,5 +4,5 @@ import { getBookingById } from "../controllers/bookingController.js";
 const router = express.Router();
 
 router.post('/create', createBooking);
-router.get("/booking/:id", getBookingById);
+router.get("/:id", getBookingById);
 export default router;

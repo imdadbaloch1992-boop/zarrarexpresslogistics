@@ -14,10 +14,12 @@ import Industries from './pages/Industries';
 import Fleet from './pages/Fleet';
 import QuoteForm from './pages/QuoteForm';
 import QuoteConfirm from './pages/QuoteConfirm';
+import BookingDetails from './pages/BookingDetails'; // ADDED THIS IMPORT
 import PaymentPage from './pages/PaymentPage';
 import LondonServices from './location/LondonServices';
 import ManchesterServices from './location/ManchesterServices';
 import BirminghamServices from './location/BirminghamServices';
+
 const ScrollToTop = () => {
   const { pathname } = useLocation();
   React.useEffect(() => {
@@ -39,6 +41,7 @@ const AnimatedRoutes = () => {
         <Route path="/fleet" element={<Fleet />} />
         <Route path="/quote" element={<QuoteForm />} />
         <Route path="/confirm" element={<QuoteConfirm />} />
+        <Route path="/booking-details" element={<BookingDetails />} /> 
         <Route path="/payment" element={<PaymentPage/>} />
         <Route path="/london" element={<LondonServices/>} />
         <Route path="/manchester" element={<ManchesterServices/>} />

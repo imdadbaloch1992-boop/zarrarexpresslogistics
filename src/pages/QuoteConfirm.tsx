@@ -31,7 +31,8 @@ const BookingDetails: React.FC = () => {
         const bookingId = localStorage.getItem("latestBookingId");
         console.log("Booking ID:", bookingId);
 
-        if (!bookingId) {
+        if (!bookingId || bookingId === "undefined") {
+          console.error("No ID found in localStorage");
           setLoading(false);
           return;
         }
