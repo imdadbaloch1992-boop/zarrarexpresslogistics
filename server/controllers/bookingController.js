@@ -59,14 +59,19 @@ export const createBooking = async (req, res) => {
     extraServices.forEach(service => {
       const charge = EXTRA_CHARGES[service];
       if (charge) {
-        if (charge.type === "perMile") ratePerMile += charge.value;
-        else if (charge.type === "flat") totalExtraCharges += charge.value;
+        if (charge.type === "perMile") {
+          ratePerMile += charge.value;
+        } else if (charge.type === "flat") {
+          totalExtraCharges += charge.value;
+        }
       }
     });
 
     const distanceCharge = ratePerMile * miles;
+
+    // ✅ FIX: removed minCharge logic
     let totalPrice = distanceCharge + totalExtraCharges;
-    totalPrice = Math.max(totalPrice, minimumCharge);
+
     totalPrice = Number(totalPrice.toFixed(2));
 
     if (isNaN(totalPrice)) {
@@ -83,7 +88,7 @@ export const createBooking = async (req, res) => {
       phone,
       vehicle,
       pricePerMile: basePricePerMile,
-      minCharge: minimumCharge,
+      minCharge: minimumCharge, // (optional, future use)
       extraServices,
       miles,
       distanceCharge: Number(distanceCharge.toFixed(2)),
@@ -128,8 +133,6 @@ export const createBooking = async (req, res) => {
           `
         });
 
-
- 
         console.log("✅ Customer email sent successfully!");
       } catch (emailError) {
         console.error("❌ Customer email sending failed:", emailError.message);
