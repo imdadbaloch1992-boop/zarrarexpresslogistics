@@ -29,8 +29,8 @@ export const createContact = async (req, res) => {
     // We define this at the top of the function so it's ready to use
     const transporter = nodemailer.createTransport({
       host: "smtp.hostinger.com",
-      port: 587,
-      secure: false, // Must be false for port 587
+      port: 465,
+      secure: true, // Must be false for port 587
       auth: {
         user: process.env.EMAIL_USER,
         pass: process.env.EMAIL_PASS,
@@ -38,7 +38,7 @@ export const createContact = async (req, res) => {
       tls: {
         rejectUnauthorized: false // Bypasses certificate/timeout issues on Render
       },
-      connectionTimeout: 10000, 
+      connectionTimeout: 15000, 
     });
 
     // 2. Save to MongoDB
