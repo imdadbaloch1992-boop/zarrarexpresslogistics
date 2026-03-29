@@ -1,9 +1,14 @@
 import React, { useState } from 'react';
-import { motion } from 'framer-motion'; // Fixed import name from motion/react to framer-motion if applicable
+import { motion } from 'framer-motion'; 
 import { Phone, Mail, Clock, MapPin, Send, CheckCircle2, Loader2 } from 'lucide-react';
 import { SectionHeading, PageTransition } from '../components/Layout';
 import SEO from '../components/SEO';
 import axios from 'axios';
+
+// ✅ Added the missing 'cn' helper function to prevent the blank page crash
+function cn(...classes) {
+  return classes.filter(Boolean).join(' ');
+}
 
 const Contact = () => {
   const [submitted, setSubmitted] = useState(false);
@@ -15,8 +20,8 @@ const Contact = () => {
     email: '',
     mobileNumber: '',
     companyName: '',
-    collectionPostcode: '', // Ensure this matches your Controller
-    requirements: '',      // Changed to string for easier email formatting
+    collectionPostcode: '', 
+    requirements: '',      
     message: '',
   });
 
@@ -30,12 +35,12 @@ const Contact = () => {
     setLoading(true);
 
     try {
-      // Pointing to your NEW Node.js backend route
+      // Points to your backend Node server
       const response = await axios.post('/api/contact/create', formData);
 
       if (response.data.success) {
         setSubmitted(true);
-        window.scrollTo(0, 0); // Scroll up to show the success message
+        window.scrollTo(0, 0); 
       }
     } catch (err) {
       console.error("Submission Error:", err);
@@ -49,14 +54,14 @@ const Contact = () => {
     <PageTransition>
       <SEO 
         title="Contact Us | Get a Quote"
-        description="Get a fast logistics quote or book a consultation with Zarrar Logistic. Our nationwide branch network is ready to support your delivery needs."
-        canonical="https://logisticsenterprise.co.uk/contact"
+        description="Get a fast logistics quote or book a consultation with AMV Couriers. Our nationwide branch network is ready to support your delivery needs."
+        canonical="https://amvcouriers.co.uk/contact"
       />
       <div className="pt-32 pb-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <SectionHeading 
             title="Get a Quote / Book a Consultation" 
-            subtitle="Your local Zarrar Logistic branch will contact you shortly to discuss your requirements."
+            subtitle="Our team will contact you shortly to discuss your logistics requirements."
             centered
           />
 
@@ -282,7 +287,7 @@ const Contact = () => {
                       loading ? "bg-slate-400 cursor-not-allowed" : "bg-slate-900 hover:bg-emerald-600 shadow-slate-900/20"
                     )}
                   >
-                    {loading ? <Loader2 className="animate-spin" /> : <Send size={20} />}
+                    {loading ? <Loader2 className="animate-spin w-5 h-5" /> : <Send size={20} />}
                     <span>{loading ? "Sending..." : "Send Message"}</span>
                   </button>
                 </form>
