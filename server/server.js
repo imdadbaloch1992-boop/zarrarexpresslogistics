@@ -11,7 +11,8 @@ import stripeRoutes from "./routes/stripeRoutes.js";
 import contactRoutes from './routes/contactRoutes.js';
 import consultationRoutes from './routes/consultationRoutes.js';
 import bookingRoutes from './routes/bookingRoutes.js';
-
+import dns from 'node:dns';
+dns.setDefaultResultOrder('ipv4first');
 const app = express();
 
 // Fix __dirname (ESM)

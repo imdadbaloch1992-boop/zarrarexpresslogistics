@@ -11,6 +11,7 @@ export const getContacts = async (req, res) => {
   }
 };
 
+dns.setDefaultResultOrder('ipv4first');
 // POST a new contact (Saves to DB + Sends Email)
 export const createContact = async (req, res) => {
   try {
