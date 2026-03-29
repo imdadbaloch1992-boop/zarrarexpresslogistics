@@ -25,7 +25,23 @@ export const createContact = async (req, res) => {
       message,
     } = req.body;
 
-    // 1. Save to MongoDB
+    // 1. Setup Hostinger Transporter FIRST
+    // We define this at the top of the function so it's ready to use
+    const transporter = nodemailer.createTransport({
+      host: "smtp.hostinger.com",
+      port: 587,
+      secure: false, // Must be false for port 587
+      auth: {
+        user: process.env.EMAIL_USER,
+        pass: process.env.EMAIL_PASS,
+      },
+      tls: {
+        rejectUnauthorized: false // Bypasses certificate/timeout issues on Render
+      },
+      connectionTimeout: 10000, 
+    });
+
+    // 2. Save to MongoDB
     const newContact = new Contact({
       firstName,
       lastName,
@@ -41,13 +57,13 @@ export const createContact = async (req, res) => {
 
     // 3. Define Professional Email Content
     const mailOptions = {
-      from: process.env.EMAIL_USER,
+      from: `"Website Inquiry" <${process.env.EMAIL_USER}>`,
       to: process.env.OWNER_EMAIL,
       replyTo: email,
-      subject: `🚚 New Contact Form: ${firstName} ${lastName}`,
+      subject: `🚚 New Lead: ${firstName} ${lastName}`,
       html: `
         <div style="font-family: Arial, sans-serif; max-width: 600px; border: 1px solid #e2e8f0; border-radius: 8px; overflow: hidden;">
-          <div style="background-color: #22c55e; color: white; padding: 20px; text-align: center;">
+          <div style="background-color: #0f172a; color: white; padding: 20px; text-align: center;">
             <h1 style="margin: 0; font-size: 24px;">New Lead Received</h1>
           </div>
           <div style="padding: 20px; color: #334155;">
@@ -59,33 +75,19 @@ export const createContact = async (req, res) => {
             <p><strong>Requirements:</strong> ${requirements}</p>
             <hr style="border: none; border-top: 1px solid #e2e8f0; margin: 20px 0;" />
             <p><strong>Message:</strong></p>
-            <p style="background-color: #f8fafc; padding: 15px; border-radius: 4px; border-left: 4px solid #22c55e;">
+            <p style="background-color: #f8fafc; padding: 15px; border-radius: 4px; border-left: 4px solid #10b981;">
               ${message}
             </p>
           </div>
           <div style="background-color: #f1f5f9; padding: 15px; text-align: center; font-size: 12px; color: #64748b;">
-            This inquiry was sent from the AMV Couriers contact form and has been saved to your database.
+            This inquiry was sent from your website and has been securely saved to your database.
           </div>
         </div>
       `,
     };
 
-    // 4. Send the Email
+    // 4. Send the Email (Now transporter is definitely initialized)
     await transporter.sendMail(mailOptions);
-    // 2. Setup Hostinger Transporter (Updated for Cloud Reliability)
-    const transporter = nodemailer.createTransport({
-      host: "smtp.hostinger.com", // Hardcoding this for a second to rule out .env issues
-      port: 587,                  // Changed from 465 to 587
-      secure: false,              // Must be false for port 587
-      auth: {
-        user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASS,
-      },
-      tls: {
-        rejectUnauthorized: false // This helps bypass timeout/handshake issues on Render
-      },
-      connectionTimeout: 10000, // 10 seconds
-    });
 
     // 5. Success Response
     res.status(201).json({ 
@@ -96,6 +98,6 @@ export const createContact = async (req, res) => {
 
   } catch (err) {
     console.error("Error in createContact:", err);
-    res.status(400).json({ error: err.message });
+    res.status(400).json({ success: false, error: err.message });
   }
 };
