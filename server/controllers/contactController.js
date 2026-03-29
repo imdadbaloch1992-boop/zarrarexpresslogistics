@@ -83,6 +83,20 @@ export const createContact = async (req, res) => {
 
     // 4. Send the Email
     await transporter.sendMail(mailOptions);
+    // 2. Setup Hostinger Transporter (Updated for Cloud Reliability)
+    const transporter = nodemailer.createTransport({
+      host: "smtp.hostinger.com", // Hardcoding this for a second to rule out .env issues
+      port: 587,                  // Changed from 465 to 587
+      secure: false,              // Must be false for port 587
+      auth: {
+        user: process.env.EMAIL_USER,
+        pass: process.env.EMAIL_PASS,
+      },
+      tls: {
+        rejectUnauthorized: false // This helps bypass timeout/handshake issues on Render
+      },
+      connectionTimeout: 10000, // 10 seconds
+    });
 
     // 5. Success Response
     res.status(201).json({ 
