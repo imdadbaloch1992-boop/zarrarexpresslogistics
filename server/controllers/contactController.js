@@ -30,7 +30,7 @@ export const createContact = async (req, res) => {
     // 1. Setup Hostinger Transporter FIRST
     // We define this at the top of the function so it's ready to use
     const transporter = nodemailer.createTransport({
-      host: "smtp.hostinger.com",
+      host: "172.65.255.143",
       port: 465,
       secure: true, // Must be false for port 587
       auth: {
