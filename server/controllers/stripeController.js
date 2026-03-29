@@ -7,25 +7,31 @@ export const createPaymentIntent = async (req, res) => {
     let { amount, currency } = req.body;
 
     if (!amount) {
+      console.error("❌ Payment Error: Amount is missing in request body");
       return res.status(400).json({ message: "Amount is required" });
     }
 
-    currency = currency || "usd";
+    // Default to GBP since you are in the UK, or use currency from body
+    const finalCurrency = currency || "gbp";
+
+    console.log(`Attempting to create PaymentIntent: ${amount} ${finalCurrency}`);
 
     const paymentIntent = await stripe.paymentIntents.create({
-      amount: Math.round(amount * 100), // Stripe requires integer
-      currency: currency,
+      amount: Math.round(amount * 100), // Convert to pence/cents
+      currency: finalCurrency,
       automatic_payment_methods: { enabled: true }
     });
 
     const payment = new Payment({
       amount,
-      currency,
+      currency: finalCurrency,
       paymentIntentId: paymentIntent.id,
       status: "pending"
     });
 
     await payment.save();
+
+    console.log("✅ PaymentIntent created successfully:", paymentIntent.id);
 
     res.status(200).json({
       clientSecret: paymentIntent.client_secret,
@@ -33,8 +39,7 @@ export const createPaymentIntent = async (req, res) => {
     });
 
   } catch (err) {
-    console.error("Stripe PaymentIntent Error:", err);
-
+    console.error("❌ Stripe PaymentIntent Error:", err.message);
     res.status(500).json({
       message: "Payment Intent creation failed",
       error: err.message
@@ -42,113 +47,64 @@ export const createPaymentIntent = async (req, res) => {
   }
 };
 
-
-// Stripe Webhook
+// Stripe Webhook Logic
 export const stripeWebhook = async (req, res) => {
-
   const sig = req.headers["stripe-signature"];
   let event;
 
   try {
-
     event = stripe.webhooks.constructEvent(
       req.body,
       sig,
       process.env.STRIPE_WEBHOOK_SECRET
     );
-
   } catch (err) {
-
-    console.log("Webhook verification failed:", err.message);
+    console.log("⚠️ Webhook verification failed:", err.message);
     return res.status(400).send(`Webhook Error: ${err.message}`);
-
   }
 
-
-  // PAYMENT SUCCESS
+  // Handle successful payment
   if (event.type === "payment_intent.succeeded") {
-
     const paymentIntent = event.data.object;
-
     try {
-
-      // Update DB
-      const payment = await Payment.findOneAndUpdate(
+      await Payment.findOneAndUpdate(
         { paymentIntentId: paymentIntent.id },
         { status: "succeeded" },
         { new: true }
       );
-
-      // ⚡ Create payout to bank
-      if (payment) {
-
-        const payout = await stripe.payouts.create({
-          amount: paymentIntent.amount_received,
-          currency: paymentIntent.currency
-        });
-
-        console.log("Payout created:", payout.id);
-
-      }
-
+      console.log("✅ Database updated: Payment succeeded", paymentIntent.id);
+      
+      // NOTE: Payouts are usually automatic. 
+      // Manual payouts (stripe.payouts.create) often fail in test mode 
+      // or if bank account is not fully setup.
     } catch (error) {
-
-      console.error("Error processing payout:", error);
-
+      console.error("❌ Error updating payment in DB:", error);
     }
-
   }
 
   res.json({ received: true });
 };
 
-
-
 export const updatePayment = async (req, res) => {
-
   try {
-
     const { paymentIntentId, status } = req.body;
-
     if (!paymentIntentId || !status) {
-
-      return res.status(400).json({
-        success: false,
-        message: "Missing required fields"
-      });
-
+      return res.status(400).json({ success: false, message: "Missing fields" });
     }
 
-    const payment = await Payment.findOne({ paymentIntentId });
+    const payment = await Payment.findOneAndUpdate(
+        { paymentIntentId },
+        { status },
+        { new: true }
+    );
 
     if (!payment) {
-
-      return res.status(404).json({
-        success: false,
-        message: "Payment not found"
-      });
-
+      return res.status(404).json({ success: false, message: "Payment not found" });
     }
 
-    payment.status = status;
-
-    await payment.save();
-
-    res.status(200).json({
-      success: true,
-      message: "Payment updated successfully",
-      payment
-    });
-
+    res.status(200).json({ success: true, payment });
   } catch (error) {
-
-    console.error(error);
-
-    res.status(500).json({
-      success: false,
-      message: "Server error"
-    });
-
+    console.error("❌ Update Payment Error:", error);
+    res.status(500).json({ success: false, message: "Server error" });
   }
-
 };

@@ -11,7 +11,7 @@ const PaymentPage = () => {
       
       {/* ✅ SEO Tags */}
       <Helmet>
-        <title>Stripe Payment | AMV Couriers</title>
+        <title>Stripe Payment | Zarrar Express Logistics</title>
         <meta
           name="description"
           content="Complete your payment securely using Stripe. Enter your card details and confirm your booking with AMV Couriers."

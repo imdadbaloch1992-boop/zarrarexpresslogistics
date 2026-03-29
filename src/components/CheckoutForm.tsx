@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { CardElement, useStripe, useElements } from "@stripe/react-stripe-js";
 import axios from "axios";
@@ -31,29 +30,32 @@ const CheckoutForm = () => {
 
   const location = useLocation();
   const { totalPrice } = (location.state as { totalPrice?: number }) || {
-    totalPrice: 50,
+    totalPrice: 0,
   };
 
   // Create PaymentIntent on component mount
   useEffect(() => {
     const createPaymentIntent = async () => {
+      if (!totalPrice || totalPrice <= 0) {
+        setMessage("Invalid booking amount.");
+        return;
+      }
+
       try {
-        const res = await axios.post(
-          "http://localhost:5000/api/stripe/create-payment-intent",
-          {
-            amount: Math.round(totalPrice * 100),
-            currency: "usd",
-          }
-        );
+        // ✅ FIX: Removed localhost, use relative path
+        const res = await axios.post("/api/stripe/create-payment-intent", {
+          amount: totalPrice, // Your controller already handles the Math.round(*100)
+          currency: "gbp",    // ✅ FIX: Using GBP for UK site
+        });
 
         if (res?.data?.clientSecret) {
           setClientSecret(res.data.clientSecret);
         } else {
           setMessage("Failed to initialize payment.");
         }
-      } catch (err) {
+      } catch (err: any) {
         console.error("PaymentIntent error:", err);
-        setMessage("Failed to initialize payment.");
+        setMessage(err.response?.data?.message || "Failed to initialize payment.");
       }
     };
 
@@ -96,7 +98,8 @@ const CheckoutForm = () => {
       if (paymentIntent && paymentIntent.status === "succeeded") {
         setMessage("Payment successful!");
 
-        await axios.post("http://localhost:5000/api/payments/update", {
+        // ✅ FIX: Pointing to correct backend route for updating status
+        await axios.post("/api/stripe/update", {
           paymentIntentId: paymentIntent.id,
           status: paymentIntent.status,
         });
@@ -121,7 +124,7 @@ const CheckoutForm = () => {
         backgroundColor: "#fff",
       }}
     >
-      <Typography variant="h5" mb={2}>
+      <Typography variant="h5" mb={2} sx={{ fontWeight: 'bold' }}>
         Complete Your Payment
       </Typography>
 
@@ -139,15 +142,20 @@ const CheckoutForm = () => {
 
         <Button
           variant="contained"
-          color="primary"
           type="submit"
           disabled={!stripe || loading || !clientSecret}
           fullWidth
+          sx={{ 
+            py: 1.5, 
+            backgroundColor: "#22c55e", 
+            '&:hover': { backgroundColor: "#16a34a" },
+            fontWeight: 'bold' 
+          }}
         >
           {loading ? (
-            <CircularProgress size={24} />
+            <CircularProgress size={24} color="inherit" />
           ) : (
-            `Pay $${Number(totalPrice).toFixed(2)}`
+            `Pay £${Number(totalPrice).toFixed(2)}`
           )}
         </Button>
       </form>
@@ -155,7 +163,11 @@ const CheckoutForm = () => {
       {message && (
         <Typography
           mt={2}
-          color={message.toLowerCase().includes("success") ? "green" : "error"}
+          textAlign="center"
+          sx={{ 
+            color: message.toLowerCase().includes("success") ? "#16a34a" : "#dc2626",
+            fontWeight: 'medium'
+          }}
         >
           {message}
         </Typography>
@@ -165,4 +177,3 @@ const CheckoutForm = () => {
 };
 
 export default CheckoutForm;
-
