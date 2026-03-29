@@ -21,7 +21,7 @@ export const createContact = async (req, res) => {
     // 2. Send via Resend API (Now using your VERIFIED domain!)
     const { data, error } = await resend.emails.send({
       // ✅ CHANGED: Using your official business email
-      from: 'Zarrar Logistics <info@zarrarexpresslogistics.co.uk>', 
+      from: 'Zarrar Logistics <support@zarrarexpresslogistics.co.uk>', 
       // ✅ FIXED: Sending to your OWNER_EMAIL set in Render
       to: process.env.OWNER_EMAIL,
       // ✅ ADDED: This lets you click "Reply" in your email to message the customer directly
