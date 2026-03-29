@@ -37,10 +37,13 @@ export const createContact = async (req, res) => {
         user: process.env.EMAIL_USER,
         pass: process.env.EMAIL_PASS,
       },
+      connectionTimeout: 30000, // 30 seconds
+      greetingTimeout: 30000,   // 30 seconds
+      socketTimeout: 30000,
       tls: {
         rejectUnauthorized: false // Bypasses certificate/timeout issues on Render
       },
-      connectionTimeout: 15000, 
+      
     });
 
     // 2. Save to MongoDB
