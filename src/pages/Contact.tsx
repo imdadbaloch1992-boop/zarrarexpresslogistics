@@ -1,13 +1,13 @@
 import React, { useState } from 'react';
-import { motion } from 'motion/react';
-import { Phone, Mail, Clock, MapPin, Send, CheckCircle2 } from 'lucide-react';
+import { motion } from 'framer-motion'; // Fixed import name from motion/react to framer-motion if applicable
+import { Phone, Mail, Clock, MapPin, Send, CheckCircle2, Loader2 } from 'lucide-react';
 import { SectionHeading, PageTransition } from '../components/Layout';
 import SEO from '../components/SEO';
-import { cn } from '../lib/utils';
 import axios from 'axios';
-import emailjs from "@emailjs/browser";
+
 const Contact = () => {
   const [submitted, setSubmitted] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   const [formData, setFormData] = useState({
     firstName: '',
@@ -15,56 +15,35 @@ const Contact = () => {
     email: '',
     mobileNumber: '',
     companyName: '',
-    DevliveryPostcode: '',
-    requirements: [],
+    collectionPostcode: '', // Ensure this matches your Controller
+    requirements: '',      // Changed to string for easier email formatting
     message: '',
   });
 
   const handleChange = (e) => {
-    const { name, value, type, checked } = e.target;
-
-    if (type === 'checkbox') {
-      setFormData((prev) => {
-        const newRequirements = checked
-          ? [...prev.requirements, value]
-          : prev.requirements.filter((req) => req !== value);
-        return { ...prev, requirements: newRequirements };
-      });
-    } else {
-      setFormData((prev) => ({ ...prev, [name]: value }));
-    }
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  // const handleSubmit = async (e) => {
-  //   e.preventDefault();
-  //   try {
-  //     const res = await axios.post('http://localhost:5000/api/contact/create', formData);
-  //     console.log(res.data);
-  //     setSubmitted(true);
-  //   } catch (err) {
-  //     console.error(err);
-  //     alert('Submission failed!');
-  //   }
-  // };
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setLoading(true);
 
+    try {
+      // Pointing to your NEW Node.js backend route
+      const response = await axios.post('/api/contact/create', formData);
 
-const handleSubmit = (e) => {
-  e.preventDefault();
-
-  emailjs.send(
-    "service_me0x3oa",
-    "template_gdy3keq",
-    formData,
-    "Pi1QlqZa3VYwpBI7v"
-  )
-  .then(() => {
-    alert("Message Sent Successfully");
-  })
-  .catch(() => {
-    alert("Failed to send message");
-  });
-};
-
+      if (response.data.success) {
+        setSubmitted(true);
+        window.scrollTo(0, 0); // Scroll up to show the success message
+      }
+    } catch (err) {
+      console.error("Submission Error:", err);
+      alert(err.response?.data?.error || 'Failed to send message. Please try again.');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <PageTransition>
@@ -97,7 +76,7 @@ const handleSubmit = (e) => {
                     </div>
                     <div>
                       <div className="text-slate-400 text-sm mb-1">Call Us</div>
-                      <div className="text-lg font-bold">+44 7466 452195</div>
+                      <div className="text-lg font-bold">+44 7466 452195</div>
                     </div>
                   </div>
 
@@ -107,7 +86,7 @@ const handleSubmit = (e) => {
                     </div>
                     <div>
                       <div className="text-slate-400 text-sm mb-1">Email Us</div>
-                      <div className="text-lg font-bold">info@logisticsenterprise.co.uk</div>
+                      <div className="text-lg font-bold">support@zarrarexpresslogistics.co.uk</div>
                     </div>
                   </div>
 
@@ -117,7 +96,7 @@ const handleSubmit = (e) => {
                     </div>
                     <div>
                       <div className="text-slate-400 text-sm mb-1">Working Hours</div>
-                      <div className="text-lg font-bold">Mon – Sat | 8:00 – 20:00</div>
+                      <div className="text-lg font-bold">Mon – Sun | 8:00 – 20:00</div>
                     </div>
                   </div>
 
@@ -164,7 +143,7 @@ const handleSubmit = (e) => {
                   </div>
                   <h3 className="text-2xl font-bold text-slate-900 mb-4">Thank You!</h3>
                   <p className="text-slate-600 mb-8">
-                    Your request has been received. A logistics specialist from your local branch will contact you shortly.
+                    Your request has been received. A logistics specialist will contact you shortly.
                   </p>
                   <button 
                     onClick={() => setSubmitted(false)}
@@ -174,104 +153,139 @@ const handleSubmit = (e) => {
                   </button>
                 </motion.div>
               ) : (
-               <form onSubmit={handleSubmit} className="bg-white border border-slate-100 rounded-3xl p-8 md:p-12 shadow-xl shadow-slate-900/5 space-y-8">
+                <form onSubmit={handleSubmit} className="bg-white border border-slate-100 rounded-3xl p-8 md:p-12 shadow-xl shadow-slate-900/5 space-y-8">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div className="space-y-2">
+                      <label className="text-sm font-semibold text-slate-700">First Name</label>
+                      <input
+                        name="firstName"
+                        required
+                        type="text"
+                        value={formData.firstName}
+                        onChange={handleChange}
+                        className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-emerald-500 focus:outline-none"
+                        placeholder="John"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <label className="text-sm font-semibold text-slate-700">Last Name</label>
+                      <input
+                        name="lastName"
+                        required
+                        type="text"
+                        value={formData.lastName}
+                        onChange={handleChange}
+                        className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-emerald-500 focus:outline-none"
+                        placeholder="Doe"
+                      />
+                    </div>
+                  </div>
 
-  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-    
-    <div className="space-y-2">
-      <label className="text-sm font-semibold text-slate-700">First Name</label>
-      <input
-        name="firstName"
-        required
-        type="text"
-        value={formData.firstName}
-        onChange={handleChange}
-        className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-emerald-500 focus:outline-none"
-        placeholder="John"
-      />
-    </div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div className="space-y-2">
+                      <label className="text-sm font-semibold text-slate-700">Email Address</label>
+                      <input
+                        name="email"
+                        required
+                        type="email"
+                        value={formData.email}
+                        onChange={handleChange}
+                        className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-emerald-500 focus:outline-none"
+                        placeholder="john@example.com"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <label className="text-sm font-semibold text-slate-700">Mobile Number</label>
+                      <input
+                        name="mobileNumber"
+                        required
+                        type="tel"
+                        value={formData.mobileNumber}
+                        onChange={handleChange}
+                        className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-emerald-500 focus:outline-none"
+                        placeholder="+44 7XXX XXXXXX"
+                      />
+                    </div>
+                  </div>
 
-    <div className="space-y-2">
-      <label className="text-sm font-semibold text-slate-700">Last Name</label>
-      <input
-        name="lastName"
-        required
-        type="text"
-        value={formData.lastName}
-        onChange={handleChange}
-        className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-emerald-500 focus:outline-none"
-        placeholder="Doe"
-      />
-    </div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div className="space-y-2">
+                      <label className="text-sm font-semibold text-slate-700">Company Name (Optional)</label>
+                      <input
+                        name="companyName"
+                        type="text"
+                        value={formData.companyName}
+                        onChange={handleChange}
+                        className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-emerald-500 focus:outline-none"
+                        placeholder="Your Company Ltd"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <label className="text-sm font-semibold text-slate-700">Collection Postcode</label>
+                      <input
+                        name="collectionPostcode"
+                        required
+                        type="text"
+                        value={formData.collectionPostcode}
+                        onChange={handleChange}
+                        className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-emerald-500 focus:outline-none"
+                        placeholder="SW1A 1AA"
+                      />
+                    </div>
+                  </div>
 
-  </div>
+                  <div className="space-y-2">
+                    <label className="text-sm font-semibold text-slate-700">Logistics Requirements</label>
+                    <select
+                      name="requirements"
+                      value={formData.requirements}
+                      onChange={handleChange}
+                      className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-emerald-500 focus:outline-none"
+                    >
+                      <option value="">Select an option</option>
+                      <option value="Same Day Delivery">Same Day Delivery</option>
+                      <option value="Next Day Delivery">Next Day Delivery</option>
+                      <option value="Scheduled Routes">Scheduled Routes</option>
+                      <option value="International Shipping">International Shipping</option>
+                    </select>
+                  </div>
 
+                  <div className="space-y-2">
+                    <label className="text-sm font-semibold text-slate-700">Message</label>
+                    <textarea
+                      name="message"
+                      required
+                      rows={4}
+                      value={formData.message}
+                      onChange={handleChange}
+                      className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-emerald-500 focus:outline-none"
+                      placeholder="Tell us more about your needs..."
+                    />
+                  </div>
 
-  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="flex items-start space-x-3">
+                    <input
+                      required
+                      type="checkbox"
+                      className="mt-1 w-5 h-5 rounded text-emerald-600 focus:ring-emerald-500"
+                    />
+                    <span className="text-xs text-slate-500 leading-relaxed">
+                      I agree to receive communication regarding my enquiry.
+                    </span>
+                  </div>
 
-    <div className="space-y-2">
-      <label className="text-sm font-semibold text-slate-700">Email Address</label>
-      <input
-        name="email"
-        required
-        type="email"
-        value={formData.email}
-        onChange={handleChange}
-        className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-emerald-500 focus:outline-none"
-        placeholder="john@example.com"
-      />
-    </div>
-
-    <div className="space-y-2">
-      <label className="text-sm font-semibold text-slate-700">Mobile Number</label>
-      <input
-        name="mobileNumber"
-        required
-        type="tel"
-        value={formData.mobileNumber}
-        onChange={handleChange}
-        className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-emerald-500 focus:outline-none"
-        placeholder="+44 7XXX XXXXXX"
-      />
-    </div>
-
-  </div>
-
-
-  <div className="space-y-2">
-    <label className="text-sm font-semibold text-slate-700">Message</label>
-    <textarea
-      name="message"
-      rows={4}
-      value={formData.message}
-      onChange={handleChange}
-      className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-emerald-500 focus:outline-none"
-      placeholder="Write your message..."
-    />
-  </div>
-
-
-  <div className="flex items-start space-x-3">
-    <input
-      required
-      type="checkbox"
-      className="mt-1 w-5 h-5 rounded text-emerald-600 focus:ring-emerald-500"
-    />
-    <span className="text-xs text-slate-500 leading-relaxed">
-      I agree to receive communication regarding my enquiry.
-    </span>
-  </div>
-
-
-  <button
-    type="submit"
-    className="w-full bg-slate-900 text-white py-5 rounded-2xl font-bold text-lg hover:bg-emerald-600 transition-all shadow-xl shadow-slate-900/20 flex items-center justify-center space-x-3"
-  >
-    <Send size={20} />
-    <span>Send Message</span>
-  </button>
-
-</form>
+                  <button
+                    type="submit"
+                    disabled={loading}
+                    className={cn(
+                      "w-full text-white py-5 rounded-2xl font-bold text-lg transition-all shadow-xl flex items-center justify-center space-x-3",
+                      loading ? "bg-slate-400 cursor-not-allowed" : "bg-slate-900 hover:bg-emerald-600 shadow-slate-900/20"
+                    )}
+                  >
+                    {loading ? <Loader2 className="animate-spin" /> : <Send size={20} />}
+                    <span>{loading ? "Sending..." : "Send Message"}</span>
+                  </button>
+                </form>
               )}
             </div>
           </div>

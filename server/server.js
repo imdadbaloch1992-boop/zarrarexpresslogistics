@@ -18,12 +18,13 @@ const app = express();
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// Debug environment
+// Debug environment (Keep these for troubleshooting)
+console.log('--- Environment Check ---');
 console.log('PORT =', process.env.PORT);
 console.log('MONGO_URI =', process.env.MONGO_URI ? 'FOUND' : 'NOT FOUND');
 console.log('EMAIL_USER =', process.env.EMAIL_USER ? 'FOUND' : 'NOT FOUND');
-console.log('EMAIL_PASS =', process.env.EMAIL_PASS ? 'FOUND' : 'NOT FOUND');
-console.log('OWNER_EMAIL =', process.env.OWNER_EMAIL ? 'FOUND' : 'NOT FOUND');
+console.log('EMAIL_HOST =', process.env.EMAIL_HOST || 'NOT FOUND');
+console.log('------------------------');
 
 // Connect database
 connectDB();
@@ -33,18 +34,23 @@ app.use(cors());
 app.use(express.json());
 
 // API Routes
-app.use('/api/contact', contactRoutes);
+app.use('/api/contact', contactRoutes); // This is where our email logic lives
 app.use('/api/consultation', consultationRoutes);
 app.use('/api/bookings', bookingRoutes);
 app.use("/api/stripe", stripeRoutes);
 
-// ✅ SERVE FRONTEND (FIX FOR "Cannot GET /")
-app.use(express.static(path.join(__dirname, '../dist')));
+// ✅ SERVE FRONTEND (Production Fix)
+const distPath = path.join(__dirname, '../dist');
+app.use(express.static(distPath));
 
+// Handle React Routing (must be AFTER API routes)
 app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname, '../dist/index.html'));
+  if (req.path.startsWith('/api')) {
+    return res.status(404).json({ message: "API route not found" });
+  }
+  res.sendFile(path.join(distPath, 'index.html'));
 });
 
 // Start server
 const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));

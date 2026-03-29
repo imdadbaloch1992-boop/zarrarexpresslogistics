@@ -245,15 +245,15 @@ export const Footer = () => {
             <ul className="space-y-4 text-sm">
               <li className="flex items-start space-x-3">
                 <Phone size={18} className="text-emerald-500 shrink-0" />
-                <span>+44 (0) 20 XXXX XXXX</span>
+                <span>+44 7466 452195</span>
               </li>
               <li className="flex items-start space-x-3">
                 <Mail size={18} className="text-emerald-500 shrink-0" />
-                <span>info@zarrarenterprise.co.uk</span>
+                <span>support@zarrarexpresslogistics.co.uk</span>
               </li>
               <li className="flex items-start space-x-3">
                 <Clock size={18} className="text-emerald-500 shrink-0" />
-                <span>Mon – Sat: 08:00 – 20:00</span>
+                <span>Mon – Sun: 08:00 – 20:00</span>
               </li>
               <li className="flex items-start space-x-3">
                 <MapPin size={18} className="text-emerald-500 shrink-0" />
