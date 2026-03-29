@@ -1,5 +1,6 @@
 import nodemailer from 'nodemailer';
 import Contact from '../models/contactModel.js';
+import dns from 'node:dns';
 
 // GET all contacts
 export const getContacts = async (req, res) => {
