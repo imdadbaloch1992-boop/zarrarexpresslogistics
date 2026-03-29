@@ -39,17 +39,6 @@ export const createContact = async (req, res) => {
 
     await newContact.save();
 
-    // 2. Setup Hostinger Transporter
-    const transporter = nodemailer.createTransport({
-      host: process.env.EMAIL_HOST,
-      port: process.env.EMAIL_PORT, // 465
-      secure: true, 
-      auth: {
-        user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASS,
-      },
-    });
-
     // 3. Define Professional Email Content
     const mailOptions = {
       from: process.env.EMAIL_USER,
