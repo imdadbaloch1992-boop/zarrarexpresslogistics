@@ -9,13 +9,13 @@ const About = () => {
     <PageTransition>
       <SEO 
         title="About Us"
-        description="Learn about Zarrar Logistic, a premier logistics provider built on reliability, efficiency, and customer-focused service."
+        description="Learn about Zarrar Logistics, a premier logistics provider built on reliability, efficiency, and customer-focused service."
         canonical="https://Logisticenterprise.co.uk/about"
       />
       <div className="pt-32 pb-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <SectionHeading 
-            title="About Zarrar Logistic" 
+            title="About Zarrar Logistics" 
             subtitle="Delivering excellence nationwide through reliability and innovation."
             centered
           />
@@ -24,7 +24,7 @@ const About = () => {
             <div className="space-y-8">
               <div className="prose prose-slate lg:prose-lg">
                 <p className="text-lg text-slate-600 leading-relaxed">
-                  Zarrar Logistic is logistics provider built on reliability, efficiency, and customer-focused service. 
+                  Zarrar Logistics is logistics provider built on reliability, efficiency, and customer-focused service. 
                   With a strong branch network and experienced logistics professionals, we deliver scalable courier and freight 
                   solutions that adapt to your business not the other way around.
                 </p>
