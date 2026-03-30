@@ -42,7 +42,7 @@ const Home = () => {
     <PageTransition>
       <SEO 
         title="Fast & Reliable Logistics"
-        description="Zarrar Logistic offers premier same-day courier and freight services across the UK. Expert logistics consultation for businesses of all sizes."
+        description="Zarrar Logistics offers premier same-day courier and freight services across the UK. Expert logistics consultation for businesses of all sizes."
         canonical="https://zarrarexpresslogistics.co.uk"
         isHomePage={true}
       />
@@ -85,7 +85,7 @@ const Home = () => {
                 transition={{ delay: 0.2 }}
                 className="text-lg text-slate-600 max-w-xl leading-relaxed"
               >
-                Zarrar Logistic is your premier courier and freight consultation partner. 
+                Zarrar Logistics is your premier courier and freight consultation partner. 
                 Delivering more than parcels delivering confidence nationwide.
               </motion.p>
 
