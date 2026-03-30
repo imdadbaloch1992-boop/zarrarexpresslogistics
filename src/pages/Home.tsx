@@ -43,7 +43,7 @@ const Home = () => {
       <SEO 
         title="Fast & Reliable Logistics"
         description="Zarrar Logistic offers premier same-day courier and freight services across the UK. Expert logistics consultation for businesses of all sizes."
-        canonical="https://Logisticenterprise.co.uk"
+        canonical="https://zarrarexpresslogistics.co.uk"
         isHomePage={true}
       />
       {/* Hero Section */}
